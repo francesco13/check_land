@@ -16,15 +16,14 @@ struct Args {
     #[clap(short, long, default_value = "0x5cc5b05a8a13e3fbdb0bb9fccd98d38e50f90c38")]
     contract: String,
     
- //   #[clap(short, long, default_value = "")]
- //   token_id: String,
+    #[clap(short, long, default_value = "159856")]
+    token_id: i32,
 }
 
 #[tokio::main]
 async fn main() -> web3::Result<()> {
     let args = Args::parse();
     let land_addr = Address::from_str(&args.contract).unwrap();
-//    let token_id = U256::from(159856);
     let websocket = web3::transports::WebSocket::new(&args.wss_net).await?;
     let web3s = web3::Web3::new(websocket);
     let wei_conv: U256 = U256::exp10(18);
@@ -40,11 +39,12 @@ async fn main() -> web3::Result<()> {
         .query("balanceOf", Address::from_str(&args.account).unwrap(), None, Options::default(), None)
         .await
         .unwrap(); 
-/*     let owner_of: Address = token_contract
-        .query("ownerOf", token_id, None, Options::default(), None)
+     let owner_of: Address = token_contract
+        .query("ownerOf", U256::from(args.token_id), None, Options::default(), None)
         .await
-        .unwrap(); */
+        .unwrap(); 
     println!("Eth balance of {:?}: {}", account,balance.checked_div(wei_conv).unwrap());
     println!("Token name: {}, Balance: {}", token_name, balance_of);
+    println!("Owner of: {}, {:?}", args.token_id, owner_of);
     Ok(())
 }
